@@ -1,0 +1,21 @@
+{
+  "name": "foster-care-rag",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-03-14",
+  "vectorize": [
+    {
+      "binding": "VECTORIZE",
+      "index_name": "foster-care-regulations"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "foster-care-db",
+      "database_id": "3fbab82d-01a2-41d1-a448-ef6316c38ad1"
+    }
+  ],
+  "ai": {
+    "binding": "AI"
+  }
+}
