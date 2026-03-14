@@ -5,14 +5,16 @@
   "vectorize": [
     {
       "binding": "VECTORIZE",
-      "index_name": "foster-care-regulations"
+      "index_name": "foster-care-regulations",
+      "remote": true
     }
   ],
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "foster-care-db",
-      "database_id": "3fbab82d-01a2-41d1-a448-ef6316c38ad1"
+      "database_id": "3fbab82d-01a2-41d1-a448-ef6316c38ad1",
+      "remote": true
     }
   ],
   "ai": {

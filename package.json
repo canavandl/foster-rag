@@ -6,10 +6,15 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:init": "wrangler d1 execute foster-care-db --file=schema.sql",
-    "db:init:remote": "wrangler d1 execute foster-care-db --remote --file=schema.sql"
+    "db:init:remote": "wrangler d1 execute foster-care-db --remote --file=schema.sql",
+    "ingest": "tsx scripts/ingest-docs.ts",
+    "ingest:remote": "WORKER_URL=$REMOTE_WORKER_URL tsx scripts/ingest-docs.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260313.1",
+    "@types/pdf-parse": "^1.1.5",
+    "pdf-parse": "^1.1.1",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "wrangler": "^4.73.0"
   }
