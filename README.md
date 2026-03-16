@@ -9,7 +9,7 @@ A Retrieval-Augmented Generation (RAG) system for querying Texas foster care reg
 - 🎯 Namespace filtering (caseworker, foster_parent, legal, admin, general)
 - 📄 PDF page anchor links in source citations
 - 🔒 Authenticated document upload endpoint
-- ✅ Comprehensive evaluation suite (13/13 tests passing, 93.6% source recall)
+- ✅ Comprehensive evaluation suite (12/13 tests passing, 93.6% source recall)
 
 ## Quick Start
 
@@ -190,25 +190,37 @@ npm run eval
 ```
 
 **Current metrics:**
-- ✅ 13/13 tests passing
+- ✅ 12/13 tests passing
 - 📊 93.6% average source recall
 - 🎯 100% namespace isolation
-- ⚡ 0.850+ average similarity scores
 
 ## Architecture
 
-**Stack:**
-- **Cloudflare Workers** - Serverless compute
-- **D1** - SQLite database for document/chunk storage
-- **Vectorize** - Vector search (768 dimensions, cosine similarity)
-- **Workers AI** - Embeddings (`bge-base-en-v1.5`) + LLM (`llama-3.1-8b-instruct-fast`)
+```mermaid
+flowchart TD
+    subgraph Ingestion
+        A[PDF / HTML docs] -->|pdf-parse + page markers| B[Text chunks\n512 tokens, 50 overlap]
+        B -->|bge-base-en-v1.5| C[768-dim embeddings]
+        C --> D[(Vectorize\nvector index)]
+        B --> E[(D1\nchunk text + metadata)]
+    end
 
-**RAG Pipeline:**
-1. Generate query embedding
-2. Search Vectorize index (namespace-filtered, topK=5)
-3. Retrieve full chunks from D1
-4. Generate answer with LLM using retrieved context
-5. Return answer + source citations with page links
+    subgraph Query
+        F[User question] -->|bge-base-en-v1.5| G[Query embedding]
+        G -->|namespace filter, topK=5| D
+        D -->|matching chunk IDs| H{Worker}
+        H -->|SELECT by chunk ID| E
+        E -->|full chunk text| H
+        H -->|context + question| I[llama-3.1-8b-instruct]
+        I --> J[Answer + source citations]
+    end
+```
+
+**Stack:**
+- **Cloudflare Workers** - Serverless compute (Hono)
+- **D1** - SQLite document store (full chunk text, primary key lookups)
+- **Vectorize** - Vector index (768 dimensions, cosine similarity, namespace-filtered)
+- **Workers AI** - Embeddings (`bge-base-en-v1.5`) + LLM (`llama-3.1-8b-instruct-fast`)
 
 ## Security
 
