@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Texas Foster Care Regulations</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f0;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a3a5c;
+      color: white;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    header h1 { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.01em; }
+    header p  { font-size: 0.8rem; opacity: 0.7; margin-top: 0.15rem; }
+
+    main { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+
+    .search-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .search-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    textarea {
+      flex: 1;
+      border: 1.5px solid #d0d0d0;
+      border-radius: 7px;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 70px;
+      transition: border-color 0.15s;
+      line-height: 1.5;
+    }
+    textarea:focus { outline: none; border-color: #1a3a5c; }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      min-width: 150px;
+    }
+
+    select {
+      border: 1.5px solid #d0d0d0;
+      border-radius: 7px;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.85rem;
+      font-family: inherit;
+      background: white;
+      cursor: pointer;
+    }
+    select:focus { outline: none; border-color: #1a3a5c; }
+
+    button {
+      background: #1a3a5c;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      padding: 0.65rem 1rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    button:hover:not(:disabled) { background: #243f63; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    #result { margin-top: 1.5rem; }
+
+    .skeleton {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      padding: 1rem 0;
+    }
+    .skeleton-line {
+      height: 14px;
+      background: linear-gradient(90deg, #e8e8e8 25%, #f0f0f0 50%, #e8e8e8 75%);
+      background-size: 200% 100%;
+      border-radius: 4px;
+      animation: shimmer 1.4s infinite;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
+
+    .answer-block {
+      background: #f8f9fb;
+      border-left: 3px solid #1a3a5c;
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      line-height: 1.7;
+      font-size: 0.93rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .sources-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #666;
+      margin: 1.25rem 0 0.6rem;
+    }
+
+    .sources-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .source-card {
+      background: white;
+      border: 1px solid #e4e4e4;
+      border-radius: 7px;
+      padding: 0.7rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .source-info { flex: 1; min-width: 0; }
+    .source-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .source-meta {
+      font-size: 0.75rem;
+      color: #777;
+      margin-top: 0.2rem;
+    }
+    .source-score {
+      font-size: 0.75rem;
+      color: #aaa;
+      white-space: nowrap;
+      padding-top: 0.15rem;
+    }
+    .source-link {
+      font-size: 0.75rem;
+      color: #1a3a5c;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .source-link:hover { text-decoration: underline; }
+
+    .error-msg {
+      background: #fff5f5;
+      border: 1px solid #fcc;
+      color: #c00;
+      border-radius: 7px;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+    }
+
+    .no-results {
+      color: #888;
+      font-size: 0.9rem;
+      padding: 0.5rem 0;
+    }
+
+    .example-queries {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+    }
+    .example-queries p {
+      font-size: 0.78rem;
+      color: #888;
+      margin-bottom: 0.5rem;
+    }
+    .examples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .example-btn {
+      background: #f0f2f5;
+      color: #333;
+      font-size: 0.78rem;
+      font-weight: 400;
+      padding: 0.3rem 0.65rem;
+      border-radius: 20px;
+    }
+    .example-btn:hover:not(:disabled) { background: #e4e7eb; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Texas Foster Care Regulations</h1>
+      <p>Ask questions about Texas DFPS foster care rules, standards, and policies</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="search-card">
+      <div class="search-row">
+        <textarea
+          id="query"
+          placeholder="Ask a question about Texas foster care regulations…"
+          rows="3"
+        ></textarea>
+        <div class="controls">
+          <select id="namespace">
+            <option value="">All namespaces</option>
+            <option value="foster_parent">Foster Parent</option>
+            <option value="caseworker">Caseworker</option>
+            <option value="legal">Legal</option>
+            <option value="admin">Admin</option>
+            <option value="general">General</option>
+          </select>
+          <button id="ask-btn" onclick="runQuery()">Ask</button>
+        </div>
+      </div>
+
+      <div class="example-queries">
+        <p>Try an example:</p>
+        <div class="examples">
+          <button class="example-btn" onclick="setExample('What are the bedroom requirements for foster children?', 'foster_parent')">Bedroom requirements</button>
+          <button class="example-btn" onclick="setExample('How often must a caseworker visit a child in foster care?', 'caseworker')">Caseworker visit frequency</button>
+          <button class="example-btn" onclick="setExample('What documents are required to place a child in another state under ICPC?', 'legal')">ICPC interstate placement</button>
+          <button class="example-btn" onclick="setExample('What training is required for foster parents?', 'foster_parent')">Foster parent training</button>
+          <button class="example-btn" onclick="setExample('What rights do foster youth have when aging out of care?', 'general')">Aging out of care</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="result"></div>
+  </main>
+
+  <script>
+    const queryEl = document.getElementById('query');
+    const nsEl = document.getElementById('namespace');
+    const btnEl = document.getElementById('ask-btn');
+    const resultEl = document.getElementById('result');
+
+    queryEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) runQuery();
+    });
+
+    function setExample(text, ns) {
+      queryEl.value = text;
+      nsEl.value = ns;
+      runQuery();
+    }
+
+    function showSkeleton() {
+      resultEl.innerHTML = `
+        <div class="skeleton">
+          <div class="skeleton-line" style="width:90%"></div>
+          <div class="skeleton-line" style="width:75%"></div>
+          <div class="skeleton-line" style="width:85%"></div>
+          <div class="skeleton-line" style="width:60%"></div>
+        </div>`;
+    }
+
+    async function runQuery() {
+      const text = queryEl.value.trim();
+      if (!text) return;
+
+      btnEl.disabled = true;
+      showSkeleton();
+
+      try {
+        const params = new URLSearchParams({ text });
+        const ns = nsEl.value;
+        if (ns) params.set('namespace', ns);
+
+        const res = await fetch(`/query?${params}`);
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+        const data = await res.json();
+        renderResult(data);
+      } catch (err) {
+        resultEl.innerHTML = `<div class="error-msg">Error: ${err.message}</div>`;
+      } finally {
+        btnEl.disabled = false;
+      }
+    }
+
+    function renderResult(data) {
+      if (!data.sources || data.sources.length === 0) {
+        resultEl.innerHTML = `<p class="no-results">No relevant regulations found for this query.</p>`;
+        return;
+      }
+
+      const sourcesHtml = data.sources.map(s => `
+        <div class="source-card">
+          <div class="source-info">
+            <div class="source-title" title="${escHtml(s.title)}">${escHtml(s.title)}</div>
+            <div class="source-meta">${escHtml(s.regulation_type)}${s.section ? ' · ' + escHtml(s.section) : ''}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem">
+            <span class="source-score">score ${s.score.toFixed(3)}</span>
+            ${s.source_url ? `<a class="source-link" href="${escHtml(s.source_url)}" target="_blank" rel="noopener">Source ↗</a>` : ''}
+          </div>
+        </div>`).join('');
+
+      resultEl.innerHTML = `
+        <div class="answer-block">${escHtml(data.answer)}</div>
+        <div class="sources-label">Sources</div>
+        <div class="sources-list">${sourcesHtml}</div>`;
+    }
+
+    function escHtml(str) {
+      return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  </script>
+</body>
+</html>

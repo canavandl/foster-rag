@@ -3,10 +3,15 @@ import { chunkText } from './chunker';
 import { upsertVectors, queryVectors } from './vectorize';
 import { generateAnswer } from './rag';
 import type { Env, QueryRequest, UploadRequest, SourceCitation, ChunkMetadata } from './types';
+import HTML from '../public/index.html';
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+
+    if (url.pathname === '/' || url.pathname === '') {
+      return new Response(HTML, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+    }
 
     if (url.pathname === '/health') {
       return Response.json({ status: 'ok' });
