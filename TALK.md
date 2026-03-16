@@ -7,9 +7,7 @@
 
 ## [0:00 — Hook & Use Case]
 
-"I built a RAG system called Foster RAG that lets foster parents, caseworkers, and legal professionals ask natural language questions about Texas foster care regulations and get accurate answers backed by citations to the actual regulatory text.
-
-The problem it solves is real: Texas foster care regulations are spread across dozens of PDFs — chapter 749 of the Texas Administrative Code, the CPS Policy Handbook, ICPC documentation — and finding a specific answer requires knowing which document to look in and then manually searching it. Foster RAG collapses that into a single question."
+My wife and I became foster parents last year. It's been a great experience, but one of the challenges is that there are a huge number of state regulations that we need to follow related to things like our home and visitors, and the child's health and education. Texas foster care regulations are spread across dozens of PDFs — primarily the CPS Policy Handbook and various official Resource Guides — and getting the correct answer is important because I'd hate to be out of compliance due to a hallunicated LLM response. Fortunately - this is the kind of problem that retrieval augmented systems are good at, where I can ask natural language questions about regulations and get accurate answers backed by citations to the actual regulatory text. 
 
 ---
 
@@ -45,7 +43,7 @@ The other challenge was **page-level citation accuracy**. PDF extraction loses p
 
 "I built an evaluation suite with 13 test cases covering all five namespaces and cross-cutting queries. Each test checks three things: did the expected source documents appear, did the answer contain the expected keywords, and did any wrong-namespace documents bleed in.
 
-Current results: 13 out of 13 passing, 93.6% average source recall, 100% namespace isolation.
+Current results: 12 out of 13 passing, 93.6% average source recall, 100% namespace isolation.
 
 The project is live on Cloudflare Workers and the code is open source at github.com/canavandl/foster-rag. I'd call Phase 1 done — the obvious next step is semantic chunking to push source recall toward 100%."
 
