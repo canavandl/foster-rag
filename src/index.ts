@@ -82,6 +82,7 @@ async function handleQuery(request: Request, env: Env, url: URL): Promise<Respon
           source_url: row.source_url ?? (meta?.source_url as string) ?? '',
           regulation_type: (meta?.regulation_type as string) ?? '',
           score: match.score,
+          page_start: (meta?.page_start as number) ?? 0,
         };
         return { content: row.content, metadata: citation };
       })
@@ -126,11 +127,11 @@ async function handleUpload(request: Request, env: Env): Promise<Response> {
 
     const documentId = docResult.meta.last_row_id as number;
 
-    // 2. Chunk the content
+    // 2. Chunk the content (parses <<<PAGE:N>>> markers if present)
     const chunks = chunkText(content);
 
     // 3. Generate embeddings (batch)
-    const embeddings = await Promise.all(chunks.map((chunk) => generateEmbedding(chunk, env.AI)));
+    const embeddings = await Promise.all(chunks.map((c) => generateEmbedding(c.content, env.AI)));
 
     // 4. Insert chunks into D1 and upsert vectors
     const vectors: { id: string; values: number[]; metadata: ChunkMetadata & { namespace: string } }[] = [];
@@ -143,12 +144,13 @@ async function handleUpload(request: Request, env: Env): Promise<Response> {
         section: section ?? '',
         source_url: source_url ?? '',
         source_type: source_type ?? 'regulation',
+        page_start: chunks[i].pageStart,
       };
 
       const chunkResult = await env.DB.prepare(
         `INSERT INTO chunks (document_id, content, chunk_index, namespace, metadata_json) VALUES (?, ?, ?, ?, ?)`
       )
-        .bind(documentId, chunks[i], i, namespace, JSON.stringify(metadata))
+        .bind(documentId, chunks[i].content, i, namespace, JSON.stringify(metadata))
         .run();
 
       const chunkId = chunkResult.meta.last_row_id as number;

@@ -316,7 +316,7 @@
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem">
             <span class="source-score">score ${s.score.toFixed(3)}</span>
-            ${s.source_url ? `<a class="source-link" href="${escHtml(s.source_url)}" target="_blank" rel="noopener">Source ↗</a>` : ''}
+            ${s.source_url ? `<a class="source-link" href="${pdfLink(s)}" target="_blank" rel="noopener">Source${s.page_start > 0 ? ' p.' + s.page_start : ''} ↗</a>` : ''}
           </div>
         </div>`).join('');
 
@@ -324,6 +324,12 @@
         <div class="answer-block">${escHtml(data.answer)}</div>
         <div class="sources-label">Sources</div>
         <div class="sources-list">${sourcesHtml}</div>`;
+    }
+
+    function pdfLink(s) {
+      const url = escHtml(s.source_url);
+      if (s.page_start > 0 && s.source_url.endsWith('.pdf')) return `${url}#page=${s.page_start}`;
+      return url;
     }
 
     function escHtml(str) {

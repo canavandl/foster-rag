@@ -7,6 +7,7 @@ export interface ChunkMetadata {
   section: string;
   source_url: string;
   source_type: 'regulation' | 'policy' | 'guide';
+  page_start: number; // PDF page number (1-based); 0 for non-PDF sources
   [key: string]: string | number; // allows use as VectorizeVectorMetadata
 }
 
@@ -45,6 +46,7 @@ export interface SourceCitation {
   source_url: string;
   regulation_type: string;
   score: number;
+  page_start: number;
 }
 
 export interface UploadRequest {

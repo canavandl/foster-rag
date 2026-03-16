@@ -148,7 +148,22 @@ const DOC_CONFIGS: DocConfig[] = [
 
 async function extractPdf(filePath: string): Promise<string> {
   const buffer = fs.readFileSync(filePath);
-  const data = await pdf(buffer);
+  let pageNum = 0;
+
+  const data = await pdf(buffer, {
+    pagerender: async (pageData: any) => {
+      pageNum++;
+      const textContent = await pageData.getTextContent();
+      let text = '';
+      let sep = '';
+      for (const item of textContent.items as Array<{ str: string }>) {
+        if (item.str === '') { sep = '\n'; }
+        else { text += sep + item.str; sep = ''; }
+      }
+      return `<<<PAGE:${pageNum}>>> ${text} `;
+    },
+  });
+
   return data.text;
 }
 
