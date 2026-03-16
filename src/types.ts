@@ -64,4 +64,5 @@ export interface Env {
   VECTORIZE: Vectorize;
   DB: D1Database;
   AI: Ai;
+  UPLOAD_API_KEY?: string;
 }

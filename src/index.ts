@@ -5,6 +5,35 @@ import { generateAnswer } from './rag';
 import type { Env, QueryRequest, UploadRequest, SourceCitation, ChunkMetadata } from './types';
 import HTML from '../public/index.html';
 
+function requireAuth(request: Request, env: Env): Response | null {
+  // Skip auth if UPLOAD_API_KEY not configured (dev mode)
+  if (!env.UPLOAD_API_KEY) {
+    console.warn('UPLOAD_API_KEY not set - upload endpoint is unprotected!');
+    return null;
+  }
+
+  const authHeader = request.headers.get('Authorization');
+
+  if (!authHeader) {
+    return Response.json(
+      { error: 'Missing Authorization header' },
+      {
+        status: 401,
+        headers: { 'WWW-Authenticate': 'Bearer realm="foster-rag"' },
+      }
+    );
+  }
+
+  // Support both "Bearer token" and just "token"
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+
+  if (token !== env.UPLOAD_API_KEY) {
+    return Response.json({ error: 'Invalid API key' }, { status: 403 });
+  }
+
+  return null; // Auth successful
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -22,6 +51,9 @@ export default {
     }
 
     if (url.pathname === '/upload' && request.method === 'POST') {
+      const authError = requireAuth(request, env);
+      if (authError) return authError;
+
       return handleUpload(request, env);
     }
 

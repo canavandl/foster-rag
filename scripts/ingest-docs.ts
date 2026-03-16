@@ -227,9 +227,17 @@ async function uploadSegment(config: DocConfig, content: string, part?: number):
     source_type: config.source_type,
   };
 
+  const headers: HeadersInit = { 'Content-Type': 'application/json' };
+
+  // Add auth header if UPLOAD_API_KEY is set
+  const apiKey = process.env.UPLOAD_API_KEY;
+  if (apiKey) {
+    headers['Authorization'] = `Bearer ${apiKey}`;
+  }
+
   const response = await fetch(`${WORKER_URL}/upload`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(payload),
   });
 
