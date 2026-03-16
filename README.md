@@ -197,23 +197,28 @@ npm run eval
 ## Architecture
 
 ```mermaid
-flowchart TD
-    subgraph Ingestion
-        A[PDF / HTML docs] -->|pdf-parse + page markers| B[Text chunks\n512 tokens, 50 overlap]
-        B -->|bge-base-en-v1.5| C[768-dim embeddings]
-        C --> D[(Vectorize\nvector index)]
-        B --> E[(D1\nchunk text + metadata)]
-    end
+architecture-beta
+    group cf(cloud)[Cloudflare]
+        service worker(server)[Hono Worker] in cf
+        service ai(server)[Workers AI] in cf
+        service vectorize(database)[Vectorize] in cf
+        service d1(database)[D1] in cf
 
-    subgraph Query
-        F[User question] -->|bge-base-en-v1.5| G[Query embedding]
-        G -->|namespace filter, topK=5| D
-        D -->|matching chunk IDs| H{Worker}
-        H -->|SELECT by chunk ID| E
-        E -->|full chunk text| H
-        H -->|context + question| I[llama-3.1-8b-instruct]
-        I --> J[Answer + source citations]
-    end
+    service docs(disk)[Regulatory Docs]
+    service user(internet)[User]
+
+    junction j_in
+    junction j_store
+
+    docs:R -- L:j_in
+    user:R -- L:j_in
+    j_in:R --> L:worker
+
+    worker:B --> T:ai
+
+    worker:R -- L:j_store
+    j_store:T --> B:vectorize
+    j_store:B --> T:d1
 ```
 
 **Stack:**
