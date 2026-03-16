@@ -8,7 +8,8 @@
     "db:init": "wrangler d1 execute foster-care-db --file=schema.sql",
     "db:init:remote": "wrangler d1 execute foster-care-db --remote --file=schema.sql",
     "ingest": "tsx scripts/ingest-docs.ts",
-    "ingest:remote": "WORKER_URL=$REMOTE_WORKER_URL tsx scripts/ingest-docs.ts"
+    "ingest:remote": "WORKER_URL=$REMOTE_WORKER_URL tsx scripts/ingest-docs.ts",
+    "eval": "tsx scripts/evaluate.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260313.1",
