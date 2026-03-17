@@ -194,31 +194,19 @@ npm run eval
 - 📊 93.6% average source recall
 - 🎯 100% namespace isolation
 
-## Architecture
+## Flow Diagram
 
 ```mermaid
-architecture-beta
-    group cf(cloud)[Cloudflare]
-        service worker(server)[Hono Worker] in cf
-        service ai(server)[Workers AI] in cf
-        service vectorize(database)[Vectorize] in cf
-        service d1(database)[D1] in cf
-
-    service docs(disk)[Regulatory Docs]
-    service user(internet)[User]
-
-    junction j_in
-    junction j_store
-
-    docs:R -- L:j_in
-    user:R -- L:j_in
-    j_in:R --> L:worker
-
-    worker:B --> T:ai
-
-    worker:R -- L:j_store
-    j_store:T --> B:vectorize
-    j_store:B --> T:d1
+sequenceDiagram
+    Frontend->>Worker: "/ingest" document
+    Worker->>D1: text chunks
+    Worker->>Vectorize: text embeddings<br>(bge-base-en-v1.5)
+    Frontend->>Worker: "/query" string
+    Worker->>Vectorize: query embedding<br>(bge-base-en-v1.5)
+    Vectorize->>Worker: top-k text chunk ids
+    Worker->>D1: top-k text chunk ids
+    D1->>Worker: top-k text chunks
+    Worker->>Frontend: generated answer<br>(llama-3.1-8b-instruct)
 ```
 
 **Stack:**
