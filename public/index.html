@@ -226,14 +226,6 @@
           rows="3"
         ></textarea>
         <div class="controls">
-          <select id="namespace">
-            <option value="">All namespaces</option>
-            <option value="foster_parent">Foster Parent</option>
-            <option value="caseworker">Caseworker</option>
-            <option value="legal">Legal</option>
-            <option value="admin">Admin</option>
-            <option value="general">General</option>
-          </select>
           <button id="ask-btn" onclick="runQuery()">Ask</button>
         </div>
       </div>
@@ -241,11 +233,10 @@
       <div class="example-queries">
         <p>Try an example:</p>
         <div class="examples">
-          <button class="example-btn" onclick="setExample('What are the bedroom requirements for foster children?', 'foster_parent')">Bedroom requirements</button>
-          <button class="example-btn" onclick="setExample('How often must a caseworker visit a child in foster care?', 'caseworker')">Caseworker visit frequency</button>
-          <button class="example-btn" onclick="setExample('What documents are required to place a child in another state under ICPC?', 'legal')">ICPC interstate placement</button>
-          <button class="example-btn" onclick="setExample('What training is required for foster parents?', 'foster_parent')">Foster parent training</button>
-          <button class="example-btn" onclick="setExample('What rights do foster youth have when aging out of care?', 'general')">Aging out of care</button>
+          <button class="example-btn" onclick="setExample('What are the bedroom requirements for foster children?')">Bedroom requirements</button>
+          <button class="example-btn" onclick="setExample('What documents are required to place a child in another state under ICPC?')">ICPC interstate placement</button>
+          <button class="example-btn" onclick="setExample('What training is required for foster parents?')">Foster parent training</button>
+          <button class="example-btn" onclick="setExample('What rights do foster youth have when aging out of care?')">Aging out of care</button>
         </div>
       </div>
     </div>
@@ -255,7 +246,6 @@
 
   <script>
     const queryEl = document.getElementById('query');
-    const nsEl = document.getElementById('namespace');
     const btnEl = document.getElementById('ask-btn');
     const resultEl = document.getElementById('result');
 
@@ -263,9 +253,8 @@
       if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) runQuery();
     });
 
-    function setExample(text, ns) {
+    function setExample(text) {
       queryEl.value = text;
-      nsEl.value = ns;
       runQuery();
     }
 
@@ -288,9 +277,6 @@
 
       try {
         const params = new URLSearchParams({ text });
-        const ns = nsEl.value;
-        if (ns) params.set('namespace', ns);
-
         const res = await fetch(`/query?${params}`);
         if (!res.ok) throw new Error(`Request failed: ${res.status}`);
         const data = await res.json();

@@ -48,12 +48,11 @@ app.get('/query', async (c) => {
     return c.json({ error: 'Missing required query parameter: text' }, 400);
   }
 
-  const namespace = c.req.query('namespace') as QueryRequest['namespace'] | undefined;
   const topK = Math.min(parseInt(c.req.query('topK') ?? '5', 10), 10);
 
   try {
     const embedding = await generateEmbedding(text, c.env.AI);
-    const matches = await queryVectors(c.env.VECTORIZE, embedding, topK, namespace);
+    const matches = await queryVectors(c.env.VECTORIZE, embedding, topK);
 
     if (!matches.matches.length) {
       return c.json({ answer: 'No relevant regulations found for your query.', sources: [] });
